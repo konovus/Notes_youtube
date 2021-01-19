@@ -2,6 +2,7 @@
 <resources>
     <color name="purple_200">#292929</color>
     <color name="purple_500">#292929</color>
+    <color name="purple_700">#292929</color>
     <color name="colorPrimary">#292929</color>
     <color name="colorPrimaryDark">#292929</color>
     <color name="colorAccent">#FDBE3B</color>
