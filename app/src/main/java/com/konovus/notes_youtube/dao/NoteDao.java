@@ -9,14 +9,21 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
 
 @Dao
 public interface NoteDao {
 
     @Query("SELECT * FROM notes ORDER BY id DESC")
-    List<Note> getAllNotes();
+    Flowable<List<Note>> getAllNotes();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertNote(Note note);
+    Completable insertNote(Note note);
+
     @Delete
-    void deleteNote(Note note);
+    Completable deleteNote(Note note);
+
+    @Query("SELECT * FROM notes WHERE id = :noteId")
+    Flowable<Note> getNoteById(String noteId);
 }

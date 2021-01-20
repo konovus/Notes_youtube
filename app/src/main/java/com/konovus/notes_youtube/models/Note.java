@@ -20,6 +20,16 @@ public class Note implements Serializable {
     private String color;
     private String webLink;
 
+    @Override
+    public String toString() {
+        return "Note{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", subtitle='" + subtitle + '\'' +
+                ", noteText='" + noteText + '\'' +
+                '}';
+    }
+
     public int getId() {
         return id;
     }

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorPrimary"
-        tools:context=".CreateNoteActivity">
+        tools:context=".activities.CreateNoteActivity">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -38,6 +38,7 @@
                     app:tint="@color/colorIcons" />
 
                 <ImageView
+                    android:id="@+id/saveNote"
                     android:layout_width="@dimen/_20sdp"
                     android:layout_height="@dimen/_20sdp"
                     android:layout_marginEnd="@dimen/_12sdp"
