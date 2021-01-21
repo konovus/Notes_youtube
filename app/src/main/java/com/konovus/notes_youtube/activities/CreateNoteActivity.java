@@ -46,6 +46,7 @@ public class CreateNoteActivity extends AppCompatActivity {
             Toast.makeText(this, "Note text can't be empty.", Toast.LENGTH_SHORT).show();
             return;
         }
+
         final Note note = new Note();
         note.setTitle(binding.inputNoteTitle.getText().toString());
         note.setSubtitle(binding.inputNoteSubtitle.getText().toString());
