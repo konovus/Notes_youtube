@@ -132,5 +132,8 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 
+        <include
+            android:id="@+id/layout_miscell"
+            layout="@layout/layout_miscell"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

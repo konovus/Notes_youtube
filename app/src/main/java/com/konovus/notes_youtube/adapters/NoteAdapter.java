@@ -1,6 +1,8 @@
 package com.konovus.notes_youtube.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,6 +64,11 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             binding.setNote(note);
             if(note.getSubtitle().isEmpty())
                 binding.textSubtitle.setVisibility(View.GONE);
+            GradientDrawable gradientDrawable = (GradientDrawable) binding.layoutNote.getBackground();
+            if(note.getColor() != null)
+                gradientDrawable.setColor(Color.parseColor(note.getColor()));
+            else gradientDrawable.setColor(Color.parseColor("#333333"));
+
             binding.executePendingBindings();
             binding.layoutNote.setOnClickListener(v -> noteListener.OnNoteClicked(note, getAdapterPosition()));
         }
