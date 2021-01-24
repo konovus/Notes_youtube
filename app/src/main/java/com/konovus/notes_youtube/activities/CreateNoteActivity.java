@@ -39,6 +39,7 @@ import com.konovus.notes_youtube.R;
 import com.konovus.notes_youtube.database.NoteDatabase;
 import com.konovus.notes_youtube.databinding.ActivityCreateNoteBinding;
 import com.konovus.notes_youtube.databinding.LayoutAddUrlBinding;
+import com.konovus.notes_youtube.databinding.LayoutDeleteNoteBinding;
 import com.konovus.notes_youtube.models.Note;
 
 import java.io.InputStream;
@@ -53,6 +54,7 @@ public class CreateNoteActivity extends AppCompatActivity {
 
     private ActivityCreateNoteBinding binding;
     private AlertDialog alertDialog;
+    private AlertDialog deleteDialog;
     private String selectedColor;
     private String selectedImagePath;
     private Note oldNote;
@@ -194,9 +196,46 @@ public class CreateNoteActivity extends AppCompatActivity {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             showAddUrlDialog();
         });
-
+        
+        if(oldNote != null) {
+            binding.layoutMiscell.layoutDeleteNote.setVisibility(View.VISIBLE);
+            binding.layoutMiscell.layoutDeleteNote.setOnClickListener(v -> {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                showDeleteNoteDialog();
+            });
+        }
     }
+    private void showDeleteNoteDialog(){
+        if(deleteDialog == null){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            View view = LayoutInflater.from(this).inflate(R.layout.layout_delete_note,
+                    findViewById(R.id.layoutDeleteNoteContainer));
+            builder.setView(view);
+            LayoutDeleteNoteBinding deleteNoteBinding = DataBindingUtil.bind(view);
 
+            deleteDialog = builder.create();
+            if(deleteDialog.getWindow() != null)
+                deleteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+
+            deleteNoteBinding.deleteNoteBTN.setOnClickListener(v -> {
+                CompositeDisposable compositeDisposable = new CompositeDisposable();
+                compositeDisposable.add(NoteDatabase.getDatabase(getApplicationContext()).noteDao().deleteNote(oldNote)
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> {
+                            Intent intent = new Intent();
+                            intent.putExtra("isNoteDeleted", true);
+                            setResult(RESULT_OK, intent);
+                            Toast.makeText(this, "Note deleted.", Toast.LENGTH_SHORT).show();
+                            finish();
+                            compositeDisposable.dispose();
+                        }));
+                deleteDialog.dismiss();
+            });
+            deleteNoteBinding.cancelDelete.setOnClickListener(v -> deleteDialog.dismiss());
+        }
+        deleteDialog.show();
+    }
     private void showAddUrlDialog(){
         if(alertDialog == null){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -3,6 +3,7 @@ package com.konovus.notes_youtube.activities;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -45,11 +46,11 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
             );
         });
 
-        getNotes(REQUEST_CODE_SHOW_NOTES);
+        getNotes(REQUEST_CODE_SHOW_NOTES, false);
     }
 
 
-    private void getNotes(final int request_code){
+    private void getNotes(final int request_code, final boolean isNoteDeleted){
         noteList = new ArrayList<>();
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         compositeDisposable.add(NoteDatabase.getDatabase(getApplicationContext()).noteDao().getAllNotes()
@@ -61,17 +62,23 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
                     if(request_code == REQUEST_CODE_SHOW_NOTES) {
                         adapter = new NoteAdapter(noteList, this, this);
                         binding.recyclerView.setAdapter(adapter);
-                        binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+                        binding.recyclerView.setLayoutManager(new WrapStaggeredLayout(2, StaggeredGridLayoutManager.VERTICAL));
                     } else if(request_code == REQUEST_CODE_ADD_NOTE){
                         noteList.add(0, notes.get(0));
                         adapter.setNotes(noteList);
                         adapter.notifyItemInserted( 0);
                         binding.recyclerView.smoothScrollToPosition(0);
                     } else if(request_code == REQUEST_CODE_UPDATE_NOTE){
-                        noteList.remove(noteClickedPos);
-                        noteList.add(noteClickedPos, notes.get(noteClickedPos));
-                        adapter.setNotes(noteList);
-                        adapter.notifyItemChanged(noteClickedPos);
+                        if(isNoteDeleted) {
+                            adapter.setNotes(noteList);
+                            adapter.notifyItemRemoved(noteClickedPos);
+                        }
+                        else {
+                            noteList.remove(noteClickedPos);
+                            noteList.add(noteClickedPos, notes.get(noteClickedPos));
+                            adapter.setNotes(noteList);
+                            adapter.notifyItemChanged(noteClickedPos);
+                        }
                     }
                     compositeDisposable.dispose();
                 }));
@@ -81,10 +88,10 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_CODE_ADD_NOTE && resultCode == RESULT_OK)
-            getNotes(REQUEST_CODE_ADD_NOTE);
+            getNotes(REQUEST_CODE_ADD_NOTE, false);
         else if(requestCode == REQUEST_CODE_UPDATE_NOTE && resultCode == RESULT_OK)
             if(data != null)
-                getNotes(REQUEST_CODE_UPDATE_NOTE);
+                getNotes(REQUEST_CODE_UPDATE_NOTE, data.getBooleanExtra("isNoteDeleted", false));
     }
 
     @Override
@@ -94,5 +101,22 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
         intent.putExtra("isViewOrUpdate", true);
         intent.putExtra("note", note);
         startActivityForResult(intent, REQUEST_CODE_UPDATE_NOTE);
+    }
+
+    private class WrapStaggeredLayout extends StaggeredGridLayoutManager{
+
+
+        public WrapStaggeredLayout(int spanCount, int orientation) {
+            super(spanCount, orientation);
+        }
+
+        @Override
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            try {
+                super.onLayoutChildren(recycler, state);
+            } catch (IndexOutOfBoundsException e) {
+                Log.e("TAG", "IndexOutOfBoundsException in RecyclerView");
+            }
+        }
     }
 }
