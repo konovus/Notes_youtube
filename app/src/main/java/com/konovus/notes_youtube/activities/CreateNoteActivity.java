@@ -79,6 +79,18 @@ public class CreateNoteActivity extends AppCompatActivity {
             oldNote = (Note) getIntent().getSerializableExtra("note");
             setViewOrUpdateNote();
         }
+
+        binding.deleteWebImg.setOnClickListener(v -> {
+            binding.textWebURL.setText(null);
+            binding.layoutWebURL.setVisibility(View.GONE);
+        });
+        binding.imageDeleteImg.setOnClickListener(v -> {
+            binding.imageNote.setImageBitmap(null);
+            binding.imageNote.setVisibility(View.GONE);
+            binding.imageDeleteImg.setVisibility(View.GONE);
+            selectedImagePath = "";
+        });
+
         initMiscell();
         setSubtitleIndicatorColor();
     }
@@ -92,12 +104,12 @@ public class CreateNoteActivity extends AppCompatActivity {
         if(oldNote.getImagePath() != null && !oldNote.getImagePath().trim().isEmpty()){
             binding.imageNote.setImageBitmap(BitmapFactory.decodeFile(oldNote.getImagePath()));
             binding.imageNote.setVisibility(View.VISIBLE);
+            binding.imageDeleteImg.setVisibility(View.VISIBLE);
             selectedImagePath = oldNote.getImagePath();
         }
 
         if(oldNote.getWebLink() != null && !oldNote.getWebLink().trim().isEmpty()){
             binding.textWebURL.setText(oldNote.getWebLink());
-            binding.textWebURL.setVisibility(View.VISIBLE);
             binding.layoutWebURL.setVisibility(View.VISIBLE);
         }
     }
@@ -257,7 +269,7 @@ public class CreateNoteActivity extends AppCompatActivity {
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                         binding.imageNote.setImageBitmap(bitmap);
                         binding.imageNote.setVisibility(View.VISIBLE);
-
+                        binding.imageDeleteImg.setVisibility(View.VISIBLE);
                         selectedImagePath = getPathFromUri(selectedImageUri);
                     } catch (Exception e) {
                         Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
