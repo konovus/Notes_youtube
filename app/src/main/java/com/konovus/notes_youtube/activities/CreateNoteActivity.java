@@ -55,6 +55,7 @@ public class CreateNoteActivity extends AppCompatActivity {
     private AlertDialog alertDialog;
     private String selectedColor;
     private String selectedImagePath;
+    private Note oldNote;
 
     private static final int REQUEST_CODE_STORAGE_PERMISSION = 1;
     private static final int REQUEST_CODE_IMAGE_PERMISSION = 2;
@@ -73,8 +74,32 @@ public class CreateNoteActivity extends AppCompatActivity {
 
         selectedColor = "#333333";
         selectedImagePath = "";
+
+        if(getIntent().getBooleanExtra("isViewOrUpdate", false)) {
+            oldNote = (Note) getIntent().getSerializableExtra("note");
+            setViewOrUpdateNote();
+        }
         initMiscell();
         setSubtitleIndicatorColor();
+    }
+
+    private void setViewOrUpdateNote(){
+        binding.inputNoteTitle.setText(oldNote.getTitle());
+        binding.inputNoteSubtitle.setText(oldNote.getSubtitle());
+        binding.inputNote.setText(oldNote.getNoteText());
+        binding.textDateTime.setText(oldNote.getDateTime());
+
+        if(oldNote.getImagePath() != null && !oldNote.getImagePath().trim().isEmpty()){
+            binding.imageNote.setImageBitmap(BitmapFactory.decodeFile(oldNote.getImagePath()));
+            binding.imageNote.setVisibility(View.VISIBLE);
+            selectedImagePath = oldNote.getImagePath();
+        }
+
+        if(oldNote.getWebLink() != null && !oldNote.getWebLink().trim().isEmpty()){
+            binding.textWebURL.setText(oldNote.getWebLink());
+            binding.textWebURL.setVisibility(View.VISIBLE);
+            binding.layoutWebURL.setVisibility(View.VISIBLE);
+        }
     }
 
     private void saveNote(){
@@ -96,6 +121,9 @@ public class CreateNoteActivity extends AppCompatActivity {
         note.setImagePath(selectedImagePath);
         if(binding.layoutWebURL.getVisibility() == View.VISIBLE)
             note.setWebLink(binding.textWebURL.getText().toString());
+
+        if(oldNote != null)
+            note.setId(oldNote.getId());
 
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         compositeDisposable.add(NoteDatabase.getDatabase(getApplicationContext()).noteDao().insertNote(note)
@@ -140,6 +168,15 @@ public class CreateNoteActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_STORAGE_PERMISSION);
             } else selectImage();
         });
+
+        if(oldNote != null && oldNote.getColor() != null && !oldNote.getColor().trim().isEmpty()){
+            selectedColor = oldNote.getColor();
+            for(ImageView color: colors)
+                if(color.getTag().toString().equals(oldNote.getColor()))
+                    color.setImageResource(R.drawable.ic_check);
+                else color.setImageResource(0);
+            setSubtitleIndicatorColor();
+        }
 
         binding.layoutMiscell.layoutAddURL.setOnClickListener(v -> {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);

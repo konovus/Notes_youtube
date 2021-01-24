@@ -138,6 +138,7 @@
                         android:autoLink="web"
                         android:fontFamily="@font/ubuntu_regular"
                         android:includeFontPadding="false"
+                        android:textColor="@color/colorAccent"
                         android:textSize="@dimen/_13ssp"/>
 
                 </LinearLayout>

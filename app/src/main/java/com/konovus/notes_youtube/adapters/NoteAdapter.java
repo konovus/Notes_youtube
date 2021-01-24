@@ -65,6 +65,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             binding.setNote(note);
             if(note.getSubtitle().isEmpty())
                 binding.textSubtitle.setVisibility(View.GONE);
+            else binding.textSubtitle.setVisibility(View.VISIBLE);
 
             GradientDrawable gradientDrawable = (GradientDrawable) binding.layoutNote.getBackground();
             if(note.getColor() != null)
@@ -76,9 +77,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
                 binding.imageNote.setVisibility(View.VISIBLE);
             } else binding.imageNote.setVisibility(View.GONE);
 
-            if(note.getWebLink() != null){
-                binding.
-            }
+//            if(note.getWebLink() != null){
+//                binding.
+//            }
 
 
             binding.executePendingBindings();
@@ -90,17 +91,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         void OnNoteClicked(Note note, int position);
     }
 
-    public void setNotes(List<Note> new_notes, Integer pos){
-        int currentSize = notes.size();
+    public void setNotes(List<Note> new_notes){
         this.notes = new_notes;
-        if(pos != null){
-            notifyItemRemoved(pos);
-            notifyItemRangeChanged(pos, getItemCount());
-        } else {
-            //tell the recycler view that all the old items are gone
-            notifyItemRangeRemoved(0, currentSize);
-            //tell the recycler view how many new items we added
-            notifyItemRangeInserted(0, new_notes.size());
-        }
     }
 }
