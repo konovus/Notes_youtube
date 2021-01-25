@@ -3,6 +3,7 @@ package com.konovus.notes_youtube.activities;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
     public static final int REQUEST_CODE_ADD_NOTE = 1;
     public static final int REQUEST_CODE_UPDATE_NOTE = 2;
     public static final int REQUEST_CODE_SHOW_NOTES = 3;
+    public static final int REQUEST_CODE_SELECT_IMAGE = 4;
+    public static final int REQUEST_CODE_STORAGE_PERMISSION = 5;
     private ActivityMainBinding binding;
     private List<Note> noteList;
     private NoteAdapter adapter;
@@ -64,8 +67,15 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
             @Override
             public void afterTextChanged(Editable s) {
                 if(!noteList.isEmpty())
-                    adapter.searchNotes(s.toString());
+                    adapter.searchNotes(s.toString().trim());
             }
+        });
+
+        binding.addCircle.setOnClickListener(v -> {
+            startActivityForResult(
+                    new Intent(getApplicationContext(), CreateNoteActivity.class),
+                    REQUEST_CODE_ADD_NOTE
+            );
         });
     }
 
@@ -82,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
                     if(request_code == REQUEST_CODE_SHOW_NOTES) {
                         adapter = new NoteAdapter(noteList, this, this);
                         binding.recyclerView.setAdapter(adapter);
-                        binding.recyclerView.setLayoutManager(new WrapStaggeredLayout(2, StaggeredGridLayoutManager.VERTICAL));
+                        binding.recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
                     } else if(request_code == REQUEST_CODE_ADD_NOTE){
                         adapter.setNotes(noteList);
                         adapter.notifyItemInserted( 0);
@@ -93,8 +103,8 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
                             adapter.notifyItemRemoved(noteClickedPos);
                         }
                         else {
-                            noteList.remove(noteClickedPos);
-                            noteList.add(noteClickedPos, notes.get(noteClickedPos));
+//                            noteList.remove(noteClickedPos);
+//                            noteList.add(noteClickedPos, notes.get(noteClickedPos));
                             adapter.setNotes(noteList);
                             adapter.notifyItemChanged(noteClickedPos);
                         }
