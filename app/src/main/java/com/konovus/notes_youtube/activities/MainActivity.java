@@ -11,6 +11,8 @@ import io.reactivex.schedulers.Schedulers;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 
@@ -47,6 +49,24 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
         });
 
         getNotes(REQUEST_CODE_SHOW_NOTES, false);
+
+        binding.inputSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.cancelTimer();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!noteList.isEmpty())
+                    adapter.searchNotes(s.toString());
+            }
+        });
     }
 
 
@@ -64,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
                         binding.recyclerView.setAdapter(adapter);
                         binding.recyclerView.setLayoutManager(new WrapStaggeredLayout(2, StaggeredGridLayoutManager.VERTICAL));
                     } else if(request_code == REQUEST_CODE_ADD_NOTE){
-                        noteList.add(0, notes.get(0));
                         adapter.setNotes(noteList);
                         adapter.notifyItemInserted( 0);
                         binding.recyclerView.smoothScrollToPosition(0);
@@ -104,8 +123,6 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.NoteL
     }
 
     private class WrapStaggeredLayout extends StaggeredGridLayoutManager{
-
-
         public WrapStaggeredLayout(int spanCount, int orientation) {
             super(spanCount, orientation);
         }

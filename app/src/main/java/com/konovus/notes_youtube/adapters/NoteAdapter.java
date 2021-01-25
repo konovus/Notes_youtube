@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +14,10 @@ import com.konovus.notes_youtube.R;
 import com.konovus.notes_youtube.databinding.NoteItemBinding;
 import com.konovus.notes_youtube.models.Note;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
@@ -23,12 +28,15 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     private List<Note> notes;
     private LayoutInflater layoutInflater;
     private NoteListener noteListener;
+    private Timer timer;
+    private List<Note> notesSource;
     Context context;
 
     public NoteAdapter(List<Note> notes, NoteListener noteListener, Context context) {
         this.notes = notes;
         this.noteListener = noteListener;
         this.context = context;
+        notesSource = notes;
     }
 
     @NonNull
@@ -93,5 +101,32 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
 
     public void setNotes(List<Note> new_notes){
         this.notes = new_notes;
+    }
+
+    public void searchNotes(final String searchWord){
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(searchWord.trim().isEmpty())
+                    notes = notesSource;
+                else {
+                    List<Note> temp = new ArrayList<>();
+                    for(Note note : notesSource)
+                        if(note.getTitle().toLowerCase().contains(searchWord) ||
+                           note.getSubtitle().toLowerCase().contains(searchWord) ||
+                           note.getNoteText().toLowerCase().contains(searchWord))
+                                temp.add(note);
+
+                        notes = temp;
+                }
+                new Handler(Looper.getMainLooper()).post(() -> notifyDataSetChanged());
+            }
+        },500);
+    }
+
+    public void cancelTimer(){
+        if(timer != null)
+            timer.cancel();
     }
 }
