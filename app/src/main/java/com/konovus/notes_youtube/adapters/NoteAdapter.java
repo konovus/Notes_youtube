@@ -118,7 +118,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
                            note.getNoteText().toLowerCase().contains(searchWord))
                                 temp.add(note);
 
-                        notes = temp;
+                    notes = temp;
                 }
                 new Handler(Looper.getMainLooper()).post(() -> notifyDataSetChanged());
             }
